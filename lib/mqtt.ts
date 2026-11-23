@@ -39,6 +39,59 @@ export function publish(topic: string, payload: object): boolean {
   return true;
 }
 
+// ---------------------------------------------------------------------
+// Seat-targeted commands. `seatId` is 1-indexed in the UI, but the
+// firmware expects `seat` = 0-indexed on the wire.
+// ---------------------------------------------------------------------
+
+export function paySeatCash(seatId: number, amount: number, destination: string) {
+  return publish(`smartpassenger/${BUS_ID}/cmd/pay`, {
+    seat: seatId - 1,
+    type: 'cash',
+    amount,
+    destination,
+  });
+}
+
+export function paySeatMpesa(
+  seatId: number,
+  amount: number,
+  destination: string,
+  ref = 'PESAPAL'
+) {
+  return publish(`smartpassenger/${BUS_ID}/cmd/pay`, {
+    seat: seatId - 1,
+    type: 'mpesa',
+    amount,
+    destination,
+    ref,
+  });
+}
+
+export function exemptSeat(seatId: number, reason: string) {
+  return publish(`smartpassenger/${BUS_ID}/cmd/exempt`, {
+    seat: seatId - 1,
+    reason,
+  });
+}
+
+export function vacateSeat(seatId: number) {
+  return publish(`smartpassenger/${BUS_ID}/cmd/vacate`, {
+    seat: seatId - 1,
+  });
+}
+
+export function sendReset() {
+  return publish(`smartpassenger/${BUS_ID}/cmd/reset`, {});
+}
+
+export function requestStatus() {
+  return publish(`smartpassenger/${BUS_ID}/cmd/status`, {});
+}
+
+// ---------------------------------------------------------------------
+// Legacy trip-level commands — kept for backward compatibility.
+// ---------------------------------------------------------------------
 export function sendCash(amount: number, destination?: string) {
   return publish(`smartpassenger/${BUS_ID}/cmd/pay`, {
     type: 'cash',
@@ -52,18 +105,10 @@ export function sendMpesa(amount: number, destination?: string, ref = 'PESAPAL')
     type: 'mpesa',
     amount,
     ...(destination ? { destination } : {}),
-    ref
+    ref,
   });
 }
 
 export function sendExemption(reason: string) {
   return publish(`smartpassenger/${BUS_ID}/cmd/exempt`, { reason });
-}
-
-export function sendReset() {
-  return publish(`smartpassenger/${BUS_ID}/cmd/reset`, {});
-}
-
-export function requestStatus() {
-  return publish(`smartpassenger/${BUS_ID}/cmd/status`, {});
 }

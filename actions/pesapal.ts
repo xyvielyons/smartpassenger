@@ -5,7 +5,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 const PESAPAL_CONSUMER_KEY = process.env.PESAPAL_CONSUMER_KEY || '';
 const PESAPAL_CONSUMER_SECRET = process.env.PESAPAL_CONSUMER_SECRET || '';
-const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3000';
+const SERVER_URL = process.env.NEXT_PUBLIC_SERVER_URL || 'http://localhost:3001';
 const IPN_ID = process.env.PESAPAL_IPN_ID || 'cd7aaa8f-eaa0-4df0-b20a-dc03af7d769d';
 
 export const authorization = async () => {

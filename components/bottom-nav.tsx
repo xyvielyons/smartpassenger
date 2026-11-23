@@ -2,17 +2,20 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Wallet, CarFront, User, ListOrdered, Bus } from 'lucide-react';
+import { Wallet, CarFront, User, ListOrdered } from 'lucide-react';
 
 const links = [
   { href: '/conductor', label: 'Conductor', icon: Wallet },
-  { href: '/driver', label: 'Driver', icon: CarFront },
-  { href: '/owner', label: 'Owner', icon: User },
-  { href: '/logs', label: 'Logs', icon: ListOrdered },
+  { href: '/driver',    label: 'Driver',    icon: CarFront },
+  { href: '/owner',     label: 'Owner',     icon: User },
+  { href: '/logs',      label: 'Logs',      icon: ListOrdered },
 ];
 
 export function BottomNav() {
   const pathname = usePathname();
+
+  // Hide staff bottom-nav on passenger routes
+  if (pathname.startsWith('/passenger')) return null;
 
   return (
     <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 md:hidden pb-[env(safe-area-inset-bottom)]">

@@ -2,22 +2,26 @@
 import Link from 'next/link';
 import {
   Wallet, CarFront, User, ListOrdered,
-  MapPin, Users, TrendingUp,
+  MapPin, Users, TrendingUp, Armchair,
 } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { ksh, relativeTime } from '@/lib/format';
-import { BUS_ID } from '@/lib/config';
+import { BUS_ID, SEAT_COUNT } from '@/lib/config';
+import { SeatGrid } from '@/components/seat-grid';
+import { BusModel } from '@/components/bus-model';
 
 export default function Home() {
   const live = useApp((s) => s.liveStats);
   const telem = useApp((s) => s.telemetry);
   const connected = useApp((s) => s.connected);
+  const seats = useApp((s) => s.seats);
 
   const roles = [
-    { href: '/conductor', label: 'Conductor', desc: 'Collect fares, log exemptions', icon: Wallet },
-    { href: '/driver',    label: 'Driver',    desc: 'Route progress and live stats', icon: CarFront },
-    { href: '/owner',     label: 'Owner',     desc: 'Revenue, location, alerts',     icon: User },
-    { href: '/logs',      label: 'Logs',      desc: 'Raw MQTT message stream',       icon: ListOrdered },
+    { href: '/conductor', label: 'Conductor', desc: 'Tap seats to collect fares',     icon: Wallet },
+    { href: '/driver',    label: 'Driver',    desc: 'Route progress and passengers',  icon: CarFront },
+    { href: '/owner',     label: 'Owner',     desc: 'Revenue, seats, alerts',         icon: User },
+    { href: '/logs',      label: 'Logs',      desc: 'Raw MQTT message stream',        icon: ListOrdered },
+    { href: '/passenger', label: 'Passenger', desc: 'Self-service fare payment',      icon: Armchair },
   ];
 
   return (
@@ -28,16 +32,24 @@ export default function Home() {
       </div>
 
       {live && (
-        <div className="grid grid-cols-3 gap-4 mb-8">
+        <div className="grid grid-cols-4 gap-4 mb-8">
           <div className="bg-white border border-slate-200 rounded-xl p-4">
             <div className="flex items-center gap-2 text-slate-500 text-xs uppercase tracking-wide font-medium">
-              <Users className="w-3.5 h-3.5" /> Onboard
+              <Armchair className="w-3.5 h-3.5" /> Seats filled
+            </div>
+            <div className="text-2xl font-bold text-slate-900 mt-1">
+              {live.seatsOccupied}/{SEAT_COUNT}
+            </div>
+          </div>
+          <div className="bg-white border border-slate-200 rounded-xl p-4">
+            <div className="flex items-center gap-2 text-slate-500 text-xs uppercase tracking-wide font-medium">
+              <Users className="w-3.5 h-3.5" /> Bodies
             </div>
             <div className="text-2xl font-bold text-slate-900 mt-1">{live.onboard}</div>
           </div>
           <div className="bg-white border border-slate-200 rounded-xl p-4">
             <div className="flex items-center gap-2 text-slate-500 text-xs uppercase tracking-wide font-medium">
-              <TrendingUp className="w-3.5 h-3.5" /> Collected today
+              <TrendingUp className="w-3.5 h-3.5" /> Collected
             </div>
             <div className="text-2xl font-bold text-slate-900 mt-1">{ksh(live.collected)}</div>
           </div>
@@ -52,7 +64,15 @@ export default function Home() {
         </div>
       )}
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {live && (
+        <div className="bg-white border border-slate-200 rounded-xl p-5 mb-8">
+          <h2 className="font-bold text-slate-900 mb-3">Seats at a glance</h2>
+          {/* <SeatGrid interactive={false} /> */}
+          <BusModel seats={seats} />
+        </div>
+      )}
+
+      <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {roles.map(({ href, label, desc, icon: Icon }) => (
           <Link
             key={href}

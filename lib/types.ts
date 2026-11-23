@@ -1,81 +1,104 @@
 export interface Gps {
-    lat: number | null;
-    lng: number | null;
-    speed: number;
-    fixed: boolean;
-  }
-  export interface CashTicket {
-    id: string;
-    ts: number;
-    amount: number;
-    destinationId: string;
-    destinationName: string;
-    verifiedAt?: number; // set when the matching payment event comes back
-  }
-  
-  export interface Telemetry {
-    bus_id: string;
-    ts: number;
-    onboard: number;
-    logged_paid: number;
-    unaccounted: number;
-    exemptions: number;
-    total_entries: number;
-    total_exits: number;
-    unpaid_exits: number;      // <-- ADD THIS LINE
-    expected_revenue: number;
-    collected_revenue: number;
-    gps: Gps;
-  }
-  
-  export interface EventMessage {
-    ts: number;
-    event: 'entered' | 'exited';
-    onboard: number;
-    unaccounted: number;
-    collected: number;
-    gps: Gps;
-  }
-  
-  export interface AlertMessage {
-    ts: number;
-    alert: 'unaccounted_boarding' | 'unpaid_passenger_exit';
-    onboard: number;
-    unaccounted: number;
-    collected: number;
-    gps: Gps;
-  }
-  
-  export interface PaymentMessage {
-    ts: number;
-    status: 'payment_verified' | 'exemption_logged';
-    amount?: number;
-    reason?: string;
-    destination?: string; // <-- ADD THIS
-    onboard: number;
-    unaccounted: number;
-    collected: number;
-    gps: Gps;
-  }
-  export interface OnboardPassenger {
-    id: string;
-    destination: string;
-    status: 'paid' | 'unaccounted' | 'exempted'; // <-- ADD THIS
-    paidAt: number;
+  lat: number | null;
+  lng: number | null;
+  speed: number;
+  fixed: boolean;
 }
 
-  export interface LiveStats {
-    onboard: number;
-    unaccounted: number;
-    collected: number;
-    loggedPaid: number;
-    unpaidExits: number;       // <-- ADD THIS LINE
-    updatedAt: number;
-  }
-  
-  export type LogEntry =
-    | { id: string; receivedAt: number; type: 'telemetry'; topic: string; data: Telemetry }
-    | { id: string; receivedAt: number; type: 'event'; topic: string; data: EventMessage }
-    | { id: string; receivedAt: number; type: 'alert'; topic: string; data: AlertMessage }
-    | { id: string; receivedAt: number; type: 'payment'; topic: string; data: PaymentMessage }
-    | { id: string; receivedAt: number; type: 'other'; topic: string; data: unknown };
+export type SeatStatus = 'vacant' | 'unpaid' | 'paid' | 'exempt';
+
+export interface SeatSnapshot {
+  id: number;          // 1..6 (1-indexed, matches hardware seat_id)
+  status: SeatStatus;
+  paid: number;
+  dest: string;
+}
+
+export interface Telemetry {
+  bus_id: string;
+  ts: number;
+  onboard: number;              // IR body counter
+  logged_paid: number;
+  unaccounted: number;          // seats occupied but unpaid
+  exemptions: number;
+  total_entries: number;
+  total_exits: number;
+  unpaid_exits: number;
+  expected_revenue: number;
+  collected_revenue: number;
+  seats_occupied: number;       // button count
+  seats: SeatSnapshot[];
+  gps: Gps;
+}
+
+export interface CounterEvent {
+  ts: number;
+  event: 'entered' | 'exited';
+  onboard: number;
+  unaccounted: number;
+  collected: number;
+  gps: Gps;
+}
+
+export interface SeatEvent {
+  ts: number;
+  event: 'seat_occupied' | 'seat_vacated';
+  seat_id: number;
+  onboard: number;
+  unaccounted: number;
+  collected: number;
+  gps: Gps;
+}
+
+export type EventMessage = CounterEvent | SeatEvent;
+
+export interface AlertMessage {
+  ts: number;
+  alert: 'unaccounted_boarding' | 'unpaid_passenger_exit';
+  seat_id?: number;
+  onboard: number;
+  unaccounted: number;
+  collected: number;
+  gps: Gps;
+}
+
+export interface PaymentMessage {
+  ts: number;
+  status: 'payment_verified' | 'exemption_logged';
+  seat_id?: number;
+  amount?: number;
+  reason?: string;
+  destination?: string;
+  onboard: number;
+  unaccounted: number;
+  collected: number;
+  gps: Gps;
+}
+
+export interface CashTicket {
+  id: string;
+  ts: number;
+  seatId: number;               // 1..6
+  amount: number;
+  destinationId: string;
+  destinationName: string;
+  method: 'cash' | 'mpesa';
+  verifiedAt?: number;
+}
+
+export interface LiveStats {
+  onboard: number;
+  seatsOccupied: number;
+  unaccounted: number;
+  collected: number;
+  loggedPaid: number;
+  unpaidExits: number;
+  updatedAt: number;
+}
+
+export type LogEntry =
+  | { id: string; receivedAt: number; type: 'telemetry'; topic: string; data: Telemetry }
+  | { id: string; receivedAt: number; type: 'event'; topic: string; data: EventMessage }
+  | { id: string; receivedAt: number; type: 'alert'; topic: string; data: AlertMessage }
+  | { id: string; receivedAt: number; type: 'payment'; topic: string; data: PaymentMessage }
+  | { id: string; receivedAt: number; type: 'other'; topic: string; data: unknown };

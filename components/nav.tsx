@@ -7,14 +7,17 @@ import { BUS_ID } from '@/lib/config';
 
 const links = [
   { href: '/conductor', label: 'Conductor', icon: Wallet },
-  { href: '/driver', label: 'Driver', icon: CarFront },
-  { href: '/owner', label: 'Owner', icon: User },
-  { href: '/logs', label: 'Logs', icon: ListOrdered },
+  { href: '/driver',    label: 'Driver',    icon: CarFront },
+  { href: '/owner',     label: 'Owner',     icon: User },
+  { href: '/logs',      label: 'Logs',      icon: ListOrdered },
 ];
 
 export function Nav() {
   const pathname = usePathname();
   const connected = useApp((s) => s.connected);
+
+  // Hide staff nav on passenger routes
+  if (pathname.startsWith('/passenger')) return null;
 
   return (
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200">
