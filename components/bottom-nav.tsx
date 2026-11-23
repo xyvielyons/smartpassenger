@@ -1,5 +1,5 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Wallet, CarFront, User, ListOrdered } from 'lucide-react';
@@ -12,7 +12,12 @@ const links = [
 ];
 
 export function BottomNav() {
-  const pathname = usePathname();
+  const nextpathname = usePathname()
+  const [pathname, setClientPathname] = useState('')
+
+  useEffect(() => {
+    setClientPathname(nextpathname)
+  }, [nextpathname])
 
   // Hide staff bottom-nav on passenger routes
   if (pathname.startsWith('/passenger')) return null;

@@ -4,6 +4,7 @@ import { usePathname } from 'next/navigation';
 import { Bus, Wallet, CarFront, User, ListOrdered } from 'lucide-react';
 import { useApp } from '@/lib/store';
 import { BUS_ID } from '@/lib/config';
+import { useEffect, useState } from 'react';
 
 const links = [
   { href: '/conductor', label: 'Conductor', icon: Wallet },
@@ -13,7 +14,13 @@ const links = [
 ];
 
 export function Nav() {
-  const pathname = usePathname();
+  const nextpathname = usePathname()
+  const [pathname, setClientPathname] = useState('')
+
+  useEffect(() => {
+    setClientPathname(nextpathname)
+  }, [nextpathname])
+
   const connected = useApp((s) => s.connected);
 
   // Hide staff nav on passenger routes
