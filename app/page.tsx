@@ -64,13 +64,7 @@ export default function Home() {
         </div>
       )}
 
-      {live && (
-        <div className="bg-white border border-slate-200 rounded-xl p-5 mb-8">
-          <h2 className="font-bold text-slate-900 mb-3">Seats at a glance</h2>
-          {/* <SeatGrid interactive={false} /> */}
-          <BusModel seats={seats} />
-        </div>
-      )}
+      
 
       <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {roles.map(({ href, label, desc, icon: Icon }) => (
@@ -87,6 +81,14 @@ export default function Home() {
           </Link>
         ))}
       </div>
+
+      {live && (
+        <div className="bg-white border border-slate-200 rounded-xl p-5 mb-8">
+          <h2 className="font-bold text-slate-900 mb-3">Seats at a glance</h2>
+          {/* <SeatGrid interactive={false} /> */}
+          <BusModel seats={seats} />
+        </div>
+      )}
 
       <p className="text-xs text-slate-400 mt-8 text-center">
         {connected
